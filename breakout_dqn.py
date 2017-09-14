@@ -11,15 +11,27 @@ import numpy as np
 import random
 import gym
 
-EPISODES = 50000
+FLAGS = tf.flags.FLAGS
+tf.flags.DEFINE_string('mode', 'train', '')
+
+if FLAGS.mode == 'play':
+    EPISODES = 1
+else:
+    EPISODES = 50000
 
 class DQNAgent:
     def __init__(self, action_size):
-        self.render = False
-        self.load_model = False
+        if FLAGS.mode == 'play':
+            self.render = True
+        else:
+            self.render = False
+        self.load_model = True
         self.state_size = (84, 84, 4)
         self.action_size = action_size
-        self.epsilon = 1.
+        if FLAGS.mode == 'play':
+            self.epsilon = 0.
+        else:
+            self.epsilon = 1.
         self.epsilon_start, self.epsilon_end = 1.0, 0.1
         self.exploration_steps = 1000000.
         self.epsilon_decay_step = (self.epsilon_start - self.epsilon_end) / self.exploration_steps
@@ -186,8 +198,9 @@ if __name__ == '__main__':
 
             reward = np.clip(reward, -1., 1.)
             agent.append_sample(history, action, reward, next_history, dead)
-            if len(agent.memory) >= agent.train_start:
-                agent.train_model()
+            if FLAGS.mode == 'train':
+                if len(agent.memory) >= agent.train_start:
+                    agent.train_model()
 
             if global_step % agent.update_target_rate == 0:
                 agent.update_target_model()
@@ -213,5 +226,6 @@ if __name__ == '__main__':
 
                 agent.avg_q_max, agent.avg_loss = 0, 0
 
-            if e % 1000 == 0:
-                agent.model.save_weights('./save_model/breakout_dqn.h5')
+            if FLAGS.mode == 'train':
+                if e % 1000 == 0:
+                    agent.model.save_weights('./save_model/breakout_dqn.h5')
