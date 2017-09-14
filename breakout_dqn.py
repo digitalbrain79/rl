@@ -164,6 +164,7 @@ if __name__ == '__main__':
 
         step, score, start_life = 0, 0, 5
         observe = env.reset()
+
         for _ in range(random.randint(1, agent.no_op_steps)):
             observe, _, _, _ = env.step(1)
 
@@ -201,9 +202,8 @@ if __name__ == '__main__':
             if FLAGS.mode == 'train':
                 if len(agent.memory) >= agent.train_start:
                     agent.train_model()
-
-            if global_step % agent.update_target_rate == 0:
-                agent.update_target_model()
+                if global_step % agent.update_target_rate == 0:
+                    agent.update_target_model()
 
             score += reward
 
