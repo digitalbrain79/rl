@@ -29,7 +29,7 @@ class DQNAgent:
         self.state_size = (84, 84, 4)
         self.action_size = action_size
         if FLAGS.mode == 'play':
-            self.epsilon = 0.
+            self.epsilon = 0.01
         else:
             self.epsilon = 1.
         self.epsilon_start, self.epsilon_end = 1.0, 0.1
@@ -40,7 +40,10 @@ class DQNAgent:
         self.update_target_rate = 10000
         self.discount_factor = 0.99
         self.memory = deque(maxlen=400000)
-        self.no_op_steps = 30
+        if FLAGS.mode == 'play':
+            self.no_op_steps = 1
+        else:
+            self.no_op_steps = 30
         self.model = self.build_model()
         self.target_model = self.build_model()
         self.update_target_model()
